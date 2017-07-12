@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import '../styles/App.css';
+import '../styles/App.scss';
 
 class MainBoard extends Component {
   constructor(props){
     super(props)
 
     // Generates a board with all walls
-    var boardSize = 60;
+    var boardSize = 40;
     var boardCoordinates = [];
     for( var i = 0; i < boardSize; i++ ){
       if(boardCoordinates[i] === undefined){
@@ -161,7 +161,7 @@ class MainBoard extends Component {
   render() {
     return (
       <div className="App" contentEditable={true} onKeyDown={this.handleKeyPress}>
-        <h2>FreeCodeCamp Roguelike</h2>
+        <h4>FreeCodeCamp Roguelike</h4>
         {this.drawBoard()}
       </div>
     );

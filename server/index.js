@@ -21,7 +21,7 @@ app.use(webpackMiddleware(compiler, {
 app.use(webpackHotMiddleware(compiler));
 
 app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, './index.html'));
+  res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 app.listen(3000, () => console.log('Running on localhost:3000'));

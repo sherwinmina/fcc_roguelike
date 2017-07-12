@@ -2,14 +2,15 @@ import path from 'path'
 import webpack from 'webpack';
 
 export default {
-  devtools: 'cheap-eval-source-map',
+  
   entry: [
     'webpack-hot-middleware/client',
     path.join(__dirname, '/client/index.js')
   ],
   output: {
     path: '/',
-    publicPath: '/'
+    publicPath: '/',
+    filename: 'bundle.js'
   },
   plugins: [
     new webpack.NoErrorsPlugin(),
@@ -31,10 +32,19 @@ export default {
           include: [path.join(__dirname, 'client')
           ],
           loader: 'style-loader!css-loader'
-       }
+       },
+       {
+          test: /\.scss$/,
+          loader: 'style-loader!css-loader!sass-loader',
+        }
     ]
   },
   resolve: {
     extentions: [ '', '.js', '.css', '.scss', '.json' ]
-  }
+  },
+  devtool: 'cheap-eval-source-map',
+  devServer: {
+    historyApiFallback: true,
+    hot: true
+  },
 }
