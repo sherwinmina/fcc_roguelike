@@ -9,7 +9,7 @@ class NavigationBar extends React.Component {
   render() {
     return(
       <div> 
-        <div>Navigation Bar</div>
+        <div></div>
       </div>
     );
   }

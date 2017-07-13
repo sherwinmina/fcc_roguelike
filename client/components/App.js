@@ -5,14 +5,13 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import AppBar from 'material-ui/AppBar';
 
-console.log('hello');
 
 class App extends Component {
   render() {
     return (
       <MuiThemeProvider muiTheme={getMuiTheme(darkBaseTheme)}>
         <div>
-        <AppBar><NavigationBar /></AppBar>
+         <NavigationBar />
             {this.props.children}
         </div>
       </MuiThemeProvider>

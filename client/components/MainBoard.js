@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import '../styles/App.scss';
+import '../styles/MainBoard.scss';
 
 class MainBoard extends Component {
   constructor(props){
@@ -160,8 +160,8 @@ class MainBoard extends Component {
  // TODO content editable is used to allow keypress on a div but react gives a warning about managing child components... unsure of hazard and fix
   render() {
     return (
-      <div className="App" contentEditable={true} onKeyDown={this.handleKeyPress}>
-        <h4>FreeCodeCamp Roguelike</h4>
+      <div contentEditable={true} onKeyDown={this.handleKeyPress}>
+    
         {this.drawBoard()}
       </div>
     );
