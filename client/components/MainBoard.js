@@ -53,6 +53,8 @@ class MainBoard extends Component {
   componentDidMount(){
     this.buildRooms();
     this.startPlayer();
+    this.handleKeyPress();
+
   }
  
   // Adds the initial player data
@@ -156,12 +158,11 @@ class MainBoard extends Component {
     }
     return <div>{fullBoard}</div>
   }
-
+  
  // TODO content editable is used to allow keypress on a div but react gives a warning about managing child components... unsure of hazard and fix
   render() {
     return (
       <div contentEditable={true} onKeyDown={this.handleKeyPress}>
-    
         {this.drawBoard()}
       </div>
     );
