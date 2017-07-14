@@ -1,0 +1,26 @@
+.tile{
+  width: 12px;
+  height: 12px;
+  border: 1px solid black;
+  display: inline-block;
+}
+
+.row {
+    display: block;
+}
+
+.player {
+  background-color: yellow;
+}
+
+.exit {
+  background-color: red;
+}
+
+.wall {
+  background-color: black;
+}
+
+.openTile {
+  background-color: white;
+}
