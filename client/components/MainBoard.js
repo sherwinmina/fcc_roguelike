@@ -1,91 +1,92 @@
 import React, { Component } from 'react';
+import Wall from './Wall.js';
+import OpenTile from './OpenTile.js';
+import Player from './Player.js';
+import Exit from './Exit.js';
 import '../styles/MainBoard.scss';
 
 class MainBoard extends Component {
   constructor(props){
     super(props)
-
-    // Generates a board with all walls
-    var boardSize = 40;
-    var boardCoordinates = [];
-    for( var i = 0; i < boardSize; i++ ){
-      if(boardCoordinates[i] === undefined){
-        boardCoordinates[i] = [];
-      }
-      for( var j = 0; j < boardSize; j++ ){
-        boardCoordinates[i][j] = { 'isWall' : true };
-      }
-    }
- 
-    // This binding is necessary to make `this` work in the callback which will allow us to access state
+    // This binding is necessary to make `this` work in the callback which will allow us to set state
     this.handleKeyPress = this.handleKeyPress.bind(this);
-
-    //TODO Keep list of open tiles for faster access?
+    // Actors data will contain data for all objects that exist on board and their locations... then when drawing board use that as a switch to draw their corresponding component
     this.state = {
-      boardSize: boardSize,
-      board: boardCoordinates,
-      player: undefined
+      board: this.createBoard(),
+      actors: {}
     }
   }
 
+  createBoard() {
+    var boardSize = 40;
+    var board = [];
+    // Populate board
+    for( var i = 0; i < boardSize; i++ ){
+      if(board[i] === undefined){
+        board[i] = [];
+      }
+      for( var j = 0; j < boardSize; j++ ){
+        board[i][j] = 'wall'; 
+      }
+    }
+    // TODO remove boardsize from all these calls and chains... its just noise atm
+    this.buildRooms(board, boardSize);
+    this.setRandomOpenTile(board, boardSize, 'player' );
+    this.setRandomOpenTile(board, boardSize, 'exit' );
+    return board;
+  }
+ 
   // Generates a square room within the board coordinates
   // TODO Do not build rooms that flow out of bounds
   // TODO Connect rooms
   // TODO Improve readability
-  buildRooms(){
-    var roomSize = this.getRandomIntBetweenMinMax( 5, 10 );
-    var roomStartingLocationX = this.getRandomIntBetweenMinMax( 0, this.state.boardSize );
-    var roomStartingLocationY = this.getRandomIntBetweenMinMax( 0, this.state.boardSize );
+  buildRooms(board, boardSize){
+    var minSize = 5;
+    var maxSize = 10;
+    var roomSize = this.getRandomIntBetweenMinMax( minSize, maxSize );
+    var roomStartingLocationX = this.getRandomIntBetweenMinMax( 0, boardSize);
+    var roomStartingLocationY = this.getRandomIntBetweenMinMax( 0, boardSize);
     console.log( "Building a room of size: " + roomSize );
     console.log( "Build starting at " + roomStartingLocationX + ' ' + roomStartingLocationY )
+
     for ( var x = roomStartingLocationX; x < roomStartingLocationX + roomSize; x++ ) {
       for ( var y = roomStartingLocationY; y < roomStartingLocationY + roomSize; y++ ) {
-        if( this.state.board[x] === undefined || this.state.board[x][y] === undefined ) {
+        // Do nothing if tile is out of bounds
+        if( board[x] === undefined || board[x][y] === undefined ) {
           continue;
         }
-        //this.setState({board: [...this.state.board.isWall, false] });
-        this.state.board[x][y].isWall = false;
+        board[x][y] = 'openTile';
+        console.log( 'creating open tile at ' + x + ',' + y );
       }
     }
   }
-  
-  // Initialize the level
-  componentDidMount(){
-    this.buildRooms();
-    this.startPlayer();
-    this.handleKeyPress();
 
+  // Changes a random open tile to the given tileType
+  setRandomOpenTile( board, boardSize, tileType ){
+    console.log( 'Setting ' + tileType );
+    var openRoom = this.getRandomOpenTile( board, boardSize );
+    board[openRoom.y][openRoom.x] = tileType;
   }
- 
-  // Adds the initial player data
-  startPlayer(){
-    console.log( 'Starting Player' );
-    var openRoom = this.getRandomOpenRoom();
-    this.setState({
-      player: {
-        hp: 10,
-        x: openRoom.x, 
-        y: openRoom.y 
-      }
-    })
+
+  componentDidMount(){
+
+    document.addEventListener( "keydown", this.handleKeyPress );
+  }
+
+  componentWillUnmount(){
+    document.removeEventListener( "keydown", this.handleKeyPress )
   }
 
   handleKeyPress(e){
     // TODO confirm if nativeEvent the react way to do this?
-    //console.log( e.nativeEvent.key )
-    //console.log( e )
-    //console.log( this )
-    this.movePlayer(e.nativeEvent.key);
-  }
-  
-  // Handle move keys
-  movePlayer( direction ){
-    console.log( direction + ' key is pressed' )
+    // console.log( e )
+    //this.movePlayer(e.key); 
+    var key = e.key;
+    console.log( key + ' key is pressed' )
 
     // TODO check if next tile is open
-
-    var currentPlayerPosition = { 'x': this.state.player.x, 'y': this.state.player.y };
-    switch(direction){
+    var currentPlayerPosition = { 'x': 0, 'y': 0 };
+    switch(key){
       case 'ArrowUp':
       case 'w':
         currentPlayerPosition.y--;
@@ -103,67 +104,63 @@ class MainBoard extends Component {
         currentPlayerPosition.x++;
         break;
     }
-    this.setState({ player: {
-      x: currentPlayerPosition.x,
-      y: currentPlayerPosition.y
-    }})
+
+    var board = this.state.board;
+    board[ currentPlayerPosition.x][currentPlayerPosition.y] = 'player';
+    this.setState({ board: board })
   }
   
-  // Returns coordinates of a random tile that is not a wall
-  getRandomOpenRoom(){
-    var randomX = Math.floor( ( Math.random() * this.state.boardSize ) );
-    var randomY = Math.floor( ( Math.random() * this.state.boardSize ) );
-    var board = this.state.board;
-    if( board[randomY][randomX] !== undefined && board[randomY][randomX].isWall === false ){
+  getRandomOpenTile( board, boardSize ){
+    var randomX = Math.floor( ( Math.random() * boardSize ) );
+    var randomY = Math.floor( ( Math.random() * boardSize ) );
+    
+    if( board[randomY][randomX] !== undefined && board[randomY][randomX] === 'openTile' ){
       //console.log( 'randomOpenRoom found at: ' + randomX + ',' + randomY );
       return { 'x': randomX, 'y': randomY  }
     } else {
-      return this.getRandomOpenRoom();
+      return this.getRandomOpenTile( board, boardSize );
     }
   }
 
+  // TODO helper function not needed here... abstract out
   getRandomIntBetweenMinMax( min, max ) {
-    return Math.floor( Math.random() * (max - min) + min );
+    return Math.round( Math.random() * (max - min) + min );
   }
-
  
-  drawBoard(){
-    // Don't draw if player hasn't initialized
-    if( this.state.player === undefined ){
-      return;
-    }
-    console.log('drawingBoard');
-    var row = [];
-    var fullBoard = [];
-    for (var y = 0; y < this.state.board.length; y++) {
-      row = [];
-      for (var x = 0; x < this.state.board.length; x++) {
-        var tile;
-        if( this.state.board[y][x].isWall === true ){
-          tile = 'blocked';
-        } else {
-          tile = 'open';
+  drawTiles(){
+    var rows = [];
+    for (var row = 0; row < this.state.board.length; row++) {
+      var components = [];
+      for (var column = 0; column < this.state.board[row].length; column++) {
+        var component;
+        // TODO make switches into constants
+        switch( this.state.board[row][column] ){
+          case 'player':
+            component = <Player />
+            break;
+          case 'exit':
+            component = <Exit />
+            break;
+          case 'openTile':
+            component = <OpenTile />
+            break;
+          case 'wall':
+          default:
+            component = <Wall />
         }
-
-        // TODO remove this and add a single call, possibly by using another layer with corrdinates or injecting to id/ref?
-        var hasPlayer = '';
-        if( this.state.player !== undefined && this.state.player.y === y && this.state.player.x === x ){
-          console.log( 'found player at ' + y + ',' + x );
-          hasPlayer = ' hasPlayer';
-        }
-
-        row.push( <div id={y + "," + x} className={tile + hasPlayer} ></div> ); 
+        components.push( component );
       }
-      fullBoard.push(<div className="row">{row}</div> );
+      // This line is the reason for the current implementation, so we can wrap components in row divs
+      rows.push( <div className='row'>{components}</div> );
     }
-    return <div>{fullBoard}</div>
+    return rows;
   }
   
  // TODO content editable is used to allow keypress on a div but react gives a warning about managing child components... unsure of hazard and fix
   render() {
     return (
-      <div contentEditable={true} onKeyDown={this.handleKeyPress}>
-        {this.drawBoard()}
+      <div>
+        {this.drawTiles()}
       </div>
     );
   }
